@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Unit tests
+        run: pytest tests/ -q
+      - name: Scenario lint
+        run: |
+          python - <<'EOF'
+          import glob, sys
+          sys.path.insert(0, "src")
+          from aegis.operators import OPERATORS
+          from aegis.scenarios import load_scenario
+          files = sorted(glob.glob("scenarios/*.yaml"))
+          assert files, "no scenarios found"
+          known = set(OPERATORS)
+          for f in files:
+              s = load_scenario(f)
+              assert s.id and s.goal_keywords and s.operators, f"invalid: {f}"
+              # 算子名必须存在于注册表，否则要到运行时才炸
+              unknown = [op for op in s.operators if op not in known]
+              assert not unknown, f"unknown operator(s) {unknown} in {f}"
+          print(f"scenario lint OK: {len(files)} files, operators validated against registry")
+          EOF
+      - name: Regression guards
+        run: pytest tests/ -q

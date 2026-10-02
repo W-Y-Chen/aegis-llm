@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis-llm"
+version = "0.3.1"
+description = "Agent 时代的 AI 安全卫士：大模型与智能体安全评测防护一体化平台（开源社区版）"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "httpx>=0.27,<1",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2"]
+
+# 已知限制：scenarios/ 目录位于包外，非 editable 安装后不会被打进 wheel。
+# CLI 使用 `aegis evaluate --scenario <id>` 时会在以下路径中查找场景库：
+#   1) 当前目录 ./scenarios  2) 仓库内 scenarios  3) ~/.aegis/scenarios
+# 详见 docs/known-limitations.md。
+
+[project.scripts]
+aegis = "aegis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

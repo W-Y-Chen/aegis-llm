@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鉴安 AegisLLM · 安全评测控制台</title>
+<style>
+:root {
+  --bg: #0F172A; --panel: #16203A; --panel2: #1B2947;
+  --primary: #3B82F6; --accent: #06B6D4; --text: #F7F4EC;
+  --muted: rgba(247,244,236,0.55); --border: rgba(59,130,246,0.25);
+  --danger: #F87171; --warn: #FBBF24; --ok: #34D399;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: "微软雅黑","Microsoft YaHei",sans-serif; min-height: 100vh; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.logo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg,#3B82F6,#06B6D4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo small { font-size: 12px; color: var(--muted); margin-left: 10px; -webkit-text-fill-color: var(--muted); }
+.topbar .meta { font-size: 13px; color: var(--muted); }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; margin-left: 8px; border: 1px solid var(--accent); color: var(--accent); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+.kpis { display: flex; gap: 18px; margin-bottom: 26px; }
+.kpi { flex: 1; background: var(--panel); border: 1px solid var(--border); border-top: 3px solid var(--primary); border-radius: 10px; padding: 18px 20px; }
+.kpi .num { font-size: 38px; font-weight: 700; background: linear-gradient(135deg,#3B82F6,#06B6D4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kpi .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.kpi.warn { border-top-color: var(--warn); } .kpi.danger { border-top-color: var(--danger); } .kpi.ok { border-top-color: var(--ok); }
+.grid { display: flex; gap: 20px; align-items: flex-start; }
+.col-main { flex: 1.5; } .col-side { flex: 1; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 20px; }
+.panel h2 { font-size: 16px; margin-bottom: 14px; color: var(--text); }
+.panel h2 .sub { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid rgba(59,130,246,0.12); }
+th { color: var(--muted); font-weight: 400; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 12px; }
+.tag.high { background: rgba(248,113,113,0.15); color: var(--danger); }
+.tag.mid { background: rgba(251,191,36,0.15); color: var(--warn); }
+.tag.low { background: rgba(52,211,153,0.15); color: var(--ok); }
+.tag.run { background: rgba(59,130,246,0.15); color: var(--primary); }
+.chain { font-size: 13px; }
+.step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px dashed rgba(59,130,246,0.15); }
+.step .turn { min-width: 52px; color: var(--accent); font-weight: 700; }
+.step .op { min-width: 86px; color: var(--text); }
+.step .posture { min-width: 86px; }
+.step .excerpt { color: var(--muted); flex: 1; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+.bar-row .name { min-width: 110px; color: var(--muted); }
+.bar { flex: 1; height: 14px; background: rgba(59,130,246,0.12); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg,#3B82F6,#06B6D4); border-radius: 4px; }
+.bar-row .val { min-width: 40px; text-align: right; }
+.btn { display: inline-block; padding: 10px 22px; border-radius: 8px; border: 1px solid var(--accent); color: var(--accent); background: transparent; font-size: 14px; cursor: pointer; margin-right: 10px; }
+.btn.primary { background: linear-gradient(135deg,#3B82F6,#06B6D4); color: #fff; border: none; }
+.foot { font-size: 12px; color: var(--muted); margin-top: 6px; }
+</style>
+<style>
+.mock-banner{background:#fff4e5;border:1px solid #e59866;border-radius:6px;
+  padding:8px 14px;margin:12px 0;font-size:13px;color:#8a4b08;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">鉴安 AegisLLM<small>大模型与智能体安全评测防护一体化平台</small></div>
+  <div class="meta">控制台 v0.1（演示原型）<span class="badge">已授权目标 · 防御性评测</span></div>
+</div>
+<div class="wrap">
+
+  <div class="mock-banner">
+    ⚠️ 本页面为 <b>控制台 UI 原型</b>，所有 KPI、任务列表与风险分布均为<b>模拟数据</b>，
+    不代表任何真实系统的评测结果；接真实引擎后本横幅应移除。
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="num">12</div><div class="label">评测任务（本月）</div></div>
+    <div class="kpi warn"><div class="num">27</div><div class="label">检出风险点</div></div>
+    <div class="kpi danger"><div class="num">5</div><div class="label">高风险（需立即整改）</div></div>
+    <div class="kpi ok"><div class="num">50</div><div class="label">攻击场景库</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="col-main">
+      <div class="panel">
+        <h2>评测任务<span class="sub">按目标模型分组 · 状态机多轮对抗</span></h2>
+        <table>
+          <thead><tr><th>任务</th><th>目标模型</th><th>场景数</th><th>检出</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td>EVAL-2026-1012</td><td>某金融客服大模型</td><td>50</td><td>3 高 / 5 中</td><td><span class="tag high">已完成·高风险</span></td></tr>
+            <tr><td>EVAL-2026-1011</td><td>某政务问答模型</td><td>50</td><td>1 高 / 4 中</td><td><span class="tag mid">已完成·中风险</span></td></tr>
+            <tr><td>EVAL-2026-1010</td><td>某高校助学 Agent</td><td>50</td><td>0 高 / 2 中</td><td><span class="tag low">已完成·低风险</span></td></tr>
+            <tr><td>EVAL-2026-1013</td><td>某电商导购 Agent</td><td>50</td><td>—</td><td><span class="tag run">运行中 62%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>攻击链证据 · EVAL-2026-1012<span class="sub">场景 injection_003 角色劫持 · 4 轮达成</span></h2>
+        <div class="chain">
+          <div class="step"><span class="turn">turn 1</span><span class="op">角色扮演</span><span class="posture"><span class="tag low">合规应答</span></span><span class="excerpt">以小说创作角度提供虚构框架，未泄露实质内容</span></div>
+          <div class="step"><span class="turn">turn 2</span><span class="op">情境虚构</span><span class="posture"><span class="tag low">合规应答</span></span><span class="excerpt">输出概念性环节定义，防御姿态稳定</span></div>
+          <div class="step"><span class="turn">turn 3</span><span class="op">角色扮演</span><span class="posture"><span class="tag mid">部分泄露</span></span><span class="excerpt">开始补全概念性细节，出现步骤化表述</span></div>
+          <div class="step"><span class="turn">turn 4</span><span class="op">话题迁移</span><span class="posture"><span class="tag high">完全泄露</span></span><span class="excerpt">命中目标状态：输出完整步骤链，证据已固化</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-side">
+      <div class="panel">
+        <h2>风险分布<span class="sub">按攻击家族</span></h2>
+        <div class="bar-row"><span class="name">多轮越狱</span><div class="bar"><i style="width:72%"></i></div><span class="val">7</span></div>
+        <div class="bar-row"><span class="name">提示注入</span><div class="bar"><i style="width:58%"></i></div><span class="val">6</span></div>
+        <div class="bar-row"><span class="name">数据泄露</span><div class="bar"><i style="width:41%"></i></div><span class="val">4</span></div>
+        <div class="bar-row"><span class="name">Agent 滥用</span><div class="bar"><i style="width:31%"></i></div><span class="val">3</span></div>
+        <div class="bar-row"><span class="name">价值观偏离</span><div class="bar"><i style="width:24%"></i></div><span class="val">3</span></div>
+        <div class="bar-row"><span class="name">幻觉失实</span><div class="bar"><i style="width:20%"></i></div><span class="val">2</span></div>
+        <div class="bar-row"><span class="name">MCP/供应链</span><div class="bar"><i style="width:14%"></i></div><span class="val">2</span></div>
+      </div>
+
+      <div class="panel">
+        <h2>合规报告</h2>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;">对标 GB/T 45654—2025 与备案要求，一键生成结构化安全评估报告与整改建议。</p>
+        <button class="btn primary">生成评估报告</button><button class="btn">导出证据包</button>
+        <p class="foot">所有评测均已取得书面授权 · 证据默认脱敏存储</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

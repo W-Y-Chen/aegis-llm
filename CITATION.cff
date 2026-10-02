@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "AegisLLM: Evaluation, Audit and Guardrails for LLM & Agent Applications"
+abstract: "Open-source community edition of the AegisLLM platform: multi-turn state-machine adversarial testing engine with a 50-scenario attack library."
+repository-code: "https://github.com/W-Y-Chen/aegis-llm"
+authors:
+  - name: "W-Y-Chen"
+license: Apache-2.0
+version: 0.3.1
+date-released: 2026-10-16
